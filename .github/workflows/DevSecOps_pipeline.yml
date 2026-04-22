@@ -39,7 +39,9 @@ jobs:
     needs: build-and-push
     uses: ./.github/workflows/docker-trivy.yml
     with:
-      image: ${{ secrets.DOCKERHUB_USERNAME }}/devtracker-backend:latest
+      image: "devtracker-backend:latest"
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
 
   argocd-sync:
     needs: container-scan
