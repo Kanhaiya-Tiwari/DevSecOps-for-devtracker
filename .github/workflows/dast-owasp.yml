@@ -21,13 +21,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Prepare for ZAP (Permission fix)
-        run: sudo chmod -R 777 .
+      - name: Run ZAP Baseline Scan (Manual Docker)
+        run: |
+          mkdir -p zap-out
+          chmod 777 zap-out
+          docker run --rm -v $(pwd)/zap-out:/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
+            -t ${{ inputs.target_url }} \
+            -J report.json \
+            -w report.md \
+            -r report.html || true
 
-      - name: ZAP Scan
-        uses: zaproxy/action-baseline@v0.13.0
+      - name: Upload ZAP Reports
+        uses: actions/upload-artifact@v4
         with:
-          target: ${{ inputs.target_url }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fail_action: false
-          artifact_name: zapresults
+          name: zap-reports
+          path: zap-out/
