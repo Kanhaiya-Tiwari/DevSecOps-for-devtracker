@@ -321,7 +321,7 @@
     - name: Patch ArgoCD service to NodePort
       shell: |
         KUBECONFIG=/etc/rancher/k3s/k3s.yaml kubectl patch svc argocd-server -n argocd \
-          --patch '{"spec": {"type": "NodePort", "ports": [{"name": "https", "nodePort": 30443, "port": 443, "targetPort": 443}]}}'
+          --patch '{"spec": {"type": "NodePort", "ports": [{"name": "https", "nodePort": 30443, "port": 443, "targetPort": 8080}]}}'
 
     - name: Wait for ArgoCD
       shell: |
