@@ -32,7 +32,7 @@ async def token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
 
     access_token_expires = timedelta(minutes=60)
     access_token = create_access_token({"sub": str(user.email)}, expires_delta=access_token_expires)
-    token_type = "bearer"
+    token_type = "bearer"  # nosec B105 - standard OAuth2 token type, not a password
     return {"access_token": access_token, "token_type": token_type}
 
 
