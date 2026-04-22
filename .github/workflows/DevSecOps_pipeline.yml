@@ -15,6 +15,7 @@ permissions:
   pull-requests: write
 
 jobs:
+  # STAGE 1: Lint & Static Security Analysis
   sast-linter:
     uses: ./.github/workflows/sast-flake8.yml
 
@@ -24,14 +25,16 @@ jobs:
   docker-lint:
     uses: ./.github/workflows/docker-hadolint.yml
 
-  gitleaks-scan:
+  secret-scan:
     uses: ./.github/workflows/security-gitleaks.yml
 
   dependency-scan:
     uses: ./.github/workflows/security-dependency.yml
 
+  # STAGE 2: Build & Push
   build-and-push:
-    needs: [sast-linter, sast-security, docker-lint, gitleaks-scan, dependency-scan]
+    name: Build & Push
+    needs: [sast-linter, sast-security, docker-lint, secret-scan, dependency-scan]
     uses: ./.github/workflows/build-push.yml
     with:
       image_name: devtracker
@@ -40,42 +43,63 @@ jobs:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
-  container-scan:
+  # STAGE 3: Container Security Scan
+  backend-scan:
+    name: Scan Backend
     needs: build-and-push
     uses: ./.github/workflows/docker-trivy.yml
     with:
-      image: "devtracker-backend:latest"
+      image: "devtracker-backend:${{ github.sha }}"
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
 
-  argocd-sync:
-    needs: container-scan
+  frontend-scan:
+    name: Scan Frontend
+    needs: build-and-push
+    uses: ./.github/workflows/docker-trivy.yml
+    with:
+      image: "devtracker-frontend:${{ github.sha }}"
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+
+  # STAGE 4: GitOps Deployment (Update Manifests)
+  deploy-gitops:
+    name: GitOps Deploy
+    needs: [backend-scan, frontend-scan]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install ArgoCD CLI
+      - name: Update Kubernetes Manifests
         run: |
-          curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-          sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
-          rm argocd-linux-amd64
-
-      - name: Sync ArgoCD Application
+          sed -i "s|image: .*devtracker-backend:.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/devtracker-backend:${{ github.sha }}|g" infra/kubernetes/backend-deployment.yml
+          sed -i "s|image: .*devtracker-frontend:.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/devtracker-frontend:${{ github.sha }}|g" infra/kubernetes/frontend-deployment.yml
+          
+      - name: Commit and Push Manifest Changes
         run: |
-          argocd app sync devtracker --auth-token ${{ secrets.ARGOCD_TOKEN }} --server ${{ secrets.ARGOCD_SERVER }} --insecure
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add infra/kubernetes/*.yml
+          git commit -m "chore(deploy): update image tags to ${{ github.sha }} [skip ci]" || echo "No changes to commit"
+          git push origin master
 
+  # STAGE 5: Post-Deployment Verification & Notifications
   dast-scan:
-    needs: argocd-sync
+    name: DAST Scan
+    needs: deploy-gitops
     uses: ./.github/workflows/dast-owasp.yml
     with:
       target_url: 'http://44.198.175.124'
 
   send-notification:
-    needs: [dast-scan]
+    name: Send Notification
+    needs: [deploy-gitops, dast-scan]
     if: always()
     uses: ./.github/workflows/notifications.yml
     with:
-      status: ${{ needs.dast-scan.result == 'success' && 'SUCCESS' || 'FAILURE' }}
-      job_name: 'DevSecOps Pipeline'
+      status: ${{ needs.deploy-gitops.result == 'success' && 'SUCCESS' || 'FAILURE' }}
+      job_name: 'DevSecOps Pipeline Execution'
     secrets: inherit
