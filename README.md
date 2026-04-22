@@ -21,9 +21,25 @@
 ![Application UI](./screenshots/application_ui.webp)
 *Real-time skill telemetry, XP gamification, and AI-driven coaching insights.*
 
+### 🛠️ Infrastructure as Code (Terraform)
+![Terraform Infrastructure](./screenshots/terraform_infrastructure.png)
+*Automated provisioning of AWS resources with state locking and security group isolation.*
+
 ### 🔄 GitOps Operations (ArgoCD)
 ![ArgoCD Dashboard](./screenshots/argocd_dashboard.webp)
 *Automated synchronization loop: GitHub Commits → AWS EC2 Deployment.*
+
+### ⛓️ DevSecOps Pipeline Graph
+![Pipeline Graph](./screenshots/pipeline_graph.png)
+*Full CI/CD lifecycle including Linting, SAST, SCA, Building, Scanning, and Deploying.*
+
+### 📈 Real-time Monitoring (Prometheus)
+![Prometheus Monitoring](./screenshots/prometheus_monitoring.png)
+*Active metric scraping and health monitoring of Kubernetes pods and host nodes.*
+
+### ✍️ Community & Insights
+![Community Insights](./screenshots/community_insights.png)
+*Integrated blog and community platform for sharing learning journeys and progress.*
 
 ---
 
