@@ -9,6 +9,11 @@ on:
   pull_request:
     branches: [ main, master ]
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 jobs:
   sast-linter:
     uses: ./.github/workflows/sast-flake8.yml
