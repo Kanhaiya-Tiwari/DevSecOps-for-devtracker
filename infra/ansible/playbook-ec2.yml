@@ -329,6 +329,11 @@
           -l app.kubernetes.io/name=argocd-server -n argocd --timeout=300s
       ignore_errors: yes
 
+    - name: Create ArgoCD Application to sync with GitHub (GitOps)
+      shell: |
+        KUBECONFIG=/etc/rancher/k3s/k3s.yaml kubectl apply -f \
+          /home/ubuntu/DevTracker-mega-project/infra/kubernetes/argocd-app.yml
+
     # ── Cert-Manager (Automatic HTTPS) ────────────────────────────────────────
     - name: Install Cert-Manager (idempotent)
       shell: |
