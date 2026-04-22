@@ -29,6 +29,7 @@
           - flake8
           - bandit
         state: present
+        extra_args: --break-system-packages
 
     - name: Install Hadolint (Dockerfile Linter)
       shell: |
@@ -39,8 +40,8 @@
 
     - name: Install Trivy (Vulnerability Scanner)
       shell: |
-        wget -qO - https://aquasecurity.github.io/trivy-repo/dabest/public.key | apt-key add -
-        echo deb https://aquasecurity.github.io/trivy-repo/dabest $(lsb_release -sc) main | tee -a /etc/apt/sources.list.d/trivy.list
+        wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | tee /usr/share/keyrings/trivy.gpg > /dev/null
+        echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/trivy.list
         apt-get update
         apt-get install -y trivy
       args:
@@ -55,6 +56,7 @@
         rm gitleaks.tar.gz gitleaks
       args:
         creates: /usr/local/bin/gitleaks
+        executable: /bin/bash
 
     - name: Install ArgoCD CLI
       shell: |
@@ -63,6 +65,7 @@
         rm argocd-linux-amd64
       args:
         creates: /usr/local/bin/argocd
+        executable: /bin/bash
 
     - name: Install AWS CLI v2
       shell: |

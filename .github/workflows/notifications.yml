@@ -1,0 +1,42 @@
+name: Deployment Notifications
+
+on:
+  workflow_call:
+    inputs:
+      status:
+        required: true
+        type: string
+      job_name:
+        required: true
+        type: string
+    secrets:
+      SMTP_USERNAME:
+        required: true
+      SMTP_PASSWORD:
+        required: true
+      RECIPIENT_EMAIL:
+        required: true
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Email Notification
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "DevTracker Deployment ${{ inputs.status }}: ${{ inputs.job_name }}"
+          to: ${{ secrets.RECIPIENT_EMAIL }}
+          from: "GitHub Actions <${{ secrets.SMTP_USERNAME }}>"
+          body: |
+            Deployment status for ${{ github.repository }}: ${{ inputs.status }}
+            
+            Job: ${{ inputs.job_name }}
+            Workflow: ${{ github.workflow }}
+            Commit: ${{ github.sha }}
+            Branch: ${{ github.ref }}
+            
+            Check details here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

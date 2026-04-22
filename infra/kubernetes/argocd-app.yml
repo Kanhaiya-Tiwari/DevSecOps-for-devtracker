@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: devtracker
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Kanhaiya-Tiwari/DevSecOps-for-devtracker.git
+    targetRevision: HEAD
+    path: infra/kubernetes
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: devtracker
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
