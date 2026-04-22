@@ -1,0 +1,25 @@
+# Reusable workflow for Dynamic Application Security Testing (DAST) using OWASP ZAP.
+# Purpose: Scans the running application for vulnerabilities like XSS, SQLi, and misconfigurations.
+name: Reusable OWASP ZAP DAST Scan
+
+on:
+  workflow_call:
+    inputs:
+      target_url:
+        required: true
+        type: string
+
+jobs:
+  zap_scan:
+    runs-on: ubuntu-latest
+    name: Scan the web application
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: ZAP Scan
+        uses: zaproxy/action-baseline@v0.12.0
+        with:
+          target: ${{ inputs.target_url }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fail_action: true

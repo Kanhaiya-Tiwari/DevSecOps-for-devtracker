@@ -1,0 +1,65 @@
+# This is the main orchestrator workflow for the DevSecOps pipeline.
+# It runs on every push and pull request to the main branch.
+# It calls individual reusable workflows to perform security scans, builds, and deployments.
+name: DevSecOps Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  sast-linter:
+    uses: ./.github/workflows/sast-flake8.yml
+
+  sast-security:
+    uses: ./.github/workflows/sast-bandit.yml
+
+  docker-lint:
+    uses: ./.github/workflows/docker-hadolint.yml
+
+  gitleaks-scan:
+    uses: ./.github/workflows/security-gitleaks.yml
+
+  dependency-scan:
+    uses: ./.github/workflows/security-dependency.yml
+
+  build-and-push:
+    needs: [sast-linter, sast-security, docker-lint, gitleaks-scan, dependency-scan]
+    uses: ./.github/workflows/build-push.yml
+    with:
+      image_name: devtracker
+      image_tag: ${{ github.sha }}
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  container-scan:
+    needs: build-and-push
+    uses: ./.github/workflows/docker-trivy.yml
+    with:
+      image: ${{ secrets.DOCKERHUB_USERNAME }}/devtracker-backend:latest
+
+  argocd-sync:
+    needs: container-scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install ArgoCD CLI
+        run: |
+          curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+          rm argocd-linux-amd64
+
+      - name: Sync ArgoCD Application
+        run: |
+          argocd app sync devtracker --auth-token ${{ secrets.ARGOCD_TOKEN }} --server ${{ secrets.ARGOCD_SERVER }} --insecure
+
+  dast-scan:
+    needs: argocd-sync
+    uses: ./.github/workflows/dast-owasp.yml
+    with:
+      target_url: 'https://devtracker.example.com' # Replace with actual URL

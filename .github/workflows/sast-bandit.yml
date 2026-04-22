@@ -1,0 +1,24 @@
+# Reusable workflow for static security scanning using Bandit.
+# Purpose: Detects common security issues in Python code such as hardcoded passwords and shell injections.
+name: Reusable Bandit Security Scan
+
+on:
+  workflow_call:
+
+jobs:
+  bandit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install bandit
+        run: pip install bandit
+
+      - name: Run bandit
+        run: bandit -r backend/app -f custom -v

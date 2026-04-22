@@ -1,0 +1,27 @@
+# Reusable workflow for container image vulnerability scanning using Trivy.
+# Purpose: Detects vulnerabilities (CVEs) in OS packages and libraries inside the Docker image.
+name: Reusable Trivy Vulnerability Scan
+
+on:
+  workflow_call:
+    inputs:
+      image:
+        required: true
+        type: string
+
+jobs:
+  trivy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ inputs.image }}
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'

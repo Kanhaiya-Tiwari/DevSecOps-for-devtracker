@@ -1,0 +1,23 @@
+# Reusable workflow for Software Composition Analysis (SCA) using Trivy FS.
+# Purpose: Scans project dependencies (e.g., requirements.txt) for known vulnerabilities.
+name: Reusable Dependency Scan
+
+on:
+  workflow_call:
+
+jobs:
+  dependency-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy dependency scanner (SCA)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'table'
+          exit-code: '1' # Fail the build if vulnerabilities are found
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true

@@ -1,0 +1,19 @@
+# Reusable workflow for linting Dockerfiles using Hadolint.
+# Purpose: Ensures Dockerfile best practices (security, optimization, size).
+name: Reusable Hadolint Docker Scan
+
+on:
+  workflow_call:
+
+jobs:
+  hadolint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: backend/Dockerfile
+          ignore: DL3008 # Example: Ignore version pinning for apt-get

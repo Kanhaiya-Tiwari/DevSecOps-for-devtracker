@@ -1,0 +1,9 @@
+# DevSecOps Tools for local testing and CI/CD
+flake8==7.0.0
+bandit==1.7.7
+# Note: Other tools like Hadolint, Trivy, Gitleaks, and OWASP ZAP 
+# are typically run as Docker containers or binary installations.
+# You can install them via:
+# brew install hadolint
+# brew install trivy
+# brew install gitleaks
