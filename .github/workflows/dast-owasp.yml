@@ -10,7 +10,7 @@ on:
         type: string
 
 jobs:
-  zap_scan:
+  zap-scan:
     runs-on: ubuntu-latest
     name: Scan the web application
     permissions:
