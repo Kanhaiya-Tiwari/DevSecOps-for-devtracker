@@ -45,11 +45,26 @@ export default function AIChatPage({ skill, insight, token }) {
     try {
       // Fallback responses since API might have issues
       const fallbackResponses = [
-        "The key to progress is consistency. Even 15 minutes daily beats 3 hours once a week. You've got this!",
-        "Every expert was once a beginner. Your current struggle is proof that you're growing. Keep pushing forward!",
-        "Break down big goals into tiny steps. What's one small thing you can do right now to move forward?",
-        "Motivation comes from action, not the other way around. Start with 5 minutes - that's all it takes.",
-        "Your future self will thank you for the work you put in today. Stay consistent and trust the process!"
+        "Consistency beats intensity every single time. 20 minutes today is better than 4 hours on Saturday.",
+        "The secret of getting ahead is getting started. Don't wait for motivation; rely on your system.",
+        "Your streak is your most valuable asset. Protect it like your career depends on it—because it does.",
+        "Successful people do what they need to do even when they don't feel like doing it.",
+        "Motivation is what gets you started. Habit is what keeps you going. Focus on building the habit.",
+        "Don't break the chain. Use a calendar to mark your progress daily and keep that momentum.",
+        "Small daily improvements over time lead to stunning results. Never underestimate the power of 1%.",
+        "Discipline is choosing between what you want now and what you want most.",
+        "If you're tired, learn to rest, not to quit. A 5-minute session counts as showing up.",
+        "Feeling stuck is a sign that you're operating at the edge of your comfort zone. That's where growth happens.",
+        "If you're stuck on a bug, walk away from the screen. A 10-minute walk often brings the solution.",
+        "Explain the problem to a rubber duck. Speaking the logic out loud exposes the gaps in your thinking.",
+        "Break the problem down into the smallest possible parts. Solve the tiniest part first.",
+        "When you feel overwhelmed, it's usually because you're looking at the whole mountain instead of the next step.",
+        "Theory is useless without application. Build a project for every new concept you learn.",
+        "Stop watching tutorials and start building. Struggle is the most effective form of learning.",
+        "Your portfolio doesn't need 100 projects; it needs 3 deep, well-architected ones that you can explain.",
+        "Build things that solve your own problems. Passion for the solution drives the learning of the technology.",
+        "Learning how to learn is more important than learning any specific programming language.",
+        "Every line of code you write is a brick in the foundation of your future career."
       ];
       
       const randomResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
