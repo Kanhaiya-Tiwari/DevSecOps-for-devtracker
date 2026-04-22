@@ -12,6 +12,7 @@ from app.dependencies import get_db, get_current_user
 from app.models.proof_of_work import ProofOfWork
 from app.models.skill import Skill
 from app.models.user import User
+from app.models.log import Log
 
 router = APIRouter()
 
@@ -67,7 +68,6 @@ async def upload_proof_of_work(
 ):
     """Upload proof of work for a session (log)"""
     # Validate log belongs to user
-    from app.models.log import Log
     log_result = await db.execute(
         select(Log).where(Log.id == UUID(log_id), Log.user_id == current_user.id)
     )

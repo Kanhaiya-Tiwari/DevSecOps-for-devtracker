@@ -32,7 +32,8 @@ async def token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
 
     access_token_expires = timedelta(minutes=60)
     access_token = create_access_token({"sub": str(user.email)}, expires_delta=access_token_expires)
-    return {"access_token": access_token, "token_type": "bearer"}
+    token_type = "bearer"
+    return {"access_token": access_token, "token_type": token_type}
 
 
 @router.get("/me", response_model=UserRead)

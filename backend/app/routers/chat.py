@@ -125,7 +125,7 @@ Coach:"""
     elif any(w in msg_lower for w in ["time", "busy", "schedule", "plan"]):
         reply = "Block 45 minutes every morning before your day starts. Morning sessions have the highest focus quality and zero interruptions. Even 3 sessions per week beats zero sessions perfectly planned."
     else:
-        reply = random.choice(FALLBACK_TIPS)
+        reply = random.choice(FALLBACK_TIPS)  # nosec B311 - non-security use case
 
     return {"reply": reply, "model": "fallback", "powered_by": "devtrackr"}
 
@@ -146,7 +146,7 @@ Tip:"""
         model_name = settings.openrouter_model
         return {"tip": tip, "model": model_name}
 
-    return {"tip": random.choice(FALLBACK_TIPS), "model": "fallback"}
+    return {"tip": random.choice(FALLBACK_TIPS), "model": "fallback"}  # nosec B311 - non-security use case
 
 
 @router.post("/skill-suggestions")
