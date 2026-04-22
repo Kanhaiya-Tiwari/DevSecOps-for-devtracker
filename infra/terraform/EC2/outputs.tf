@@ -18,7 +18,7 @@ output "ssh_command" {
   value       = "ssh -i <your-key>.pem ubuntu@${aws_instance.ec2.public_ip}"
 }
 
-output "bootstrap_log" {
-  description = "Command to check bootstrap/playbook logs on EC2"
-  value       = "ssh -i <your-key>.pem ubuntu@${aws_instance.ec2.public_ip} 'tail -f /var/log/devtracker-bootstrap.log'"
+output "argocd_password_command" {
+  description = "Run this command to get the ArgoCD initial admin password"
+  value       = "ssh -i ${var.key_name}.pem ubuntu@${aws_instance.ec2.public_ip} 'sudo KUBECONFIG=/etc/rancher/k3s/k3s.yaml kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath=\"{.data.password}\" | base64 -d'"
 }
