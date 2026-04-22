@@ -64,7 +64,7 @@ jobs:
     needs: argocd-sync
     uses: ./.github/workflows/dast-owasp.yml
     with:
-      target_url: 'https://devtracker.example.com' # Replace with actual URL
+      target_url: 'http://44.198.175.124'
 
   send-notification:
     needs: [dast-scan]

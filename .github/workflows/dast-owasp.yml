@@ -17,9 +17,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Prepare for ZAP (Permission fix)
+        run: sudo chmod -R 777 .
+
       - name: ZAP Scan
         uses: zaproxy/action-baseline@v0.12.0
         with:
           target: ${{ inputs.target_url }}
-          token: ${{ secrets.TOKEN_GITHUB }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           fail_action: true
