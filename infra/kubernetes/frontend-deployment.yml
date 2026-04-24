@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: kanhaiyatiwari/devtracker-frontend:9fab83315e94f93b246aa5240d0e7cd5450894e0
+        image: kanhaiyatiwari/devtracker-frontend:82536d332d0e107ebcba7609bb371487419b9d9d
         imagePullPolicy: Never
         ports:
         - containerPort: 80
