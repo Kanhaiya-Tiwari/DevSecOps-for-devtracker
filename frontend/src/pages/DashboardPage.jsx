@@ -141,7 +141,9 @@ export default function DashboardPage({ skills, logsBySkill, selectedSkillId, se
   // Load proof of work for all logs
   useEffect(() => {
     if (!token || !logsBySkill) return;
-    Object.values(logsBySkill).flat().forEach(log => {
+    // Only load proof for visible or limited number of logs on mobile/initial load
+    const all = Object.values(logsBySkill).flat().slice(0, 20);
+    all.forEach(log => {
       loadProofOfWorkForLog(log.id);
     });
   }, [logsBySkill, token]);
