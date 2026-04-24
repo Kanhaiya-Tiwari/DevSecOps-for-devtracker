@@ -3,13 +3,13 @@ import Input from "../components/Input";
 import Button from "../components/Button";
 import { Globe, ShieldCheck, Sparkles, Zap } from "lucide-react";
 
-export default function LoginPage({ onSubmit, onSwitch, loading, error }) {
+export default function LoginPage({ onSubmit, onSwitch, loading, error, theme }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [lang, setLang] = useState("en");
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-4 bg-[#030712] text-primary overflow-hidden">
+    <div className={`relative min-h-screen flex items-center justify-center px-4 transition-colors duration-300 ${theme === 'dark' ? 'bg-[#030712]' : 'bg-slate-50'}`}>
       {/* Ocean Animation Background */}
       <div className="ocean">
         <div className="wave"></div>

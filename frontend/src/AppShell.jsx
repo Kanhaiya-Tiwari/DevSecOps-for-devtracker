@@ -25,7 +25,9 @@ function AppContent() {
   const [view, setView] = useState("dashboard");
   const [theme, setTheme] = useState(() => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("devtrackr_theme") || "dark";
+      const saved = localStorage.getItem("devtrackr_theme");
+      // If nothing is saved, or if it's the first time, always default to dark
+      return saved === "light" ? "light" : "dark";
     }
     return "dark";
   });
@@ -226,38 +228,63 @@ function AppContent() {
     </div>
   );
 
+  const AuthLayout = ({ children }) => (
+    <div className="relative min-h-screen bg-page text-primary transition-colors duration-300 overflow-hidden">
+      {/* Theme Toggle for Auth Pages */}
+      <div className="absolute top-6 right-6 z-50">
+        <button 
+          onClick={toggleTheme} 
+          className="w-10 h-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-lg hover:bg-white/10 transition-all"
+        >
+          {theme === "dark" ? "☀️" : "🌙"}
+        </button>
+      </div>
+
+      {theme === "dark" && (
+        <>
+          <div className="float-soft absolute -top-20 left-0 h-96 w-96 rounded-full bg-sky-500/8 blur-3xl" />
+          <div className="float-soft absolute top-1/2 right-0 h-80 w-80 rounded-full bg-pink-500/6 blur-3xl" />
+        </>
+      )}
+      {children}
+      {showWelcome && WelcomeOverlay}
+    </div>
+  );
+
   if (authLoading) {
-    return <div className="min-h-screen grid place-items-center text-slate-300">Loading...</div>;
+    return <div className="min-h-screen grid place-items-center text-slate-300 bg-[#030712]">Loading...</div>;
   }
 
   // Show welcome splash always on fresh load before login
   if (showWelcome && !user) {
-    return (
-      <div className="relative min-h-screen bg-[#030712] overflow-hidden">
-        {WelcomeOverlay}
-      </div>
-    );
+    return <AuthLayout>{WelcomeOverlay}</AuthLayout>;
   }
 
   if (!user) {
     if (authView === "login") {
       return (
-        <LoginPage
-          onSubmit={onLogin}
-          onSwitch={() => setAuthView("register")}
-          loading={authBusy}
-          error={authError}
-        />
+        <AuthLayout>
+          <LoginPage
+            onSubmit={onLogin}
+            onSwitch={() => setAuthView("register")}
+            loading={authBusy}
+            error={authError}
+            theme={theme}
+          />
+        </AuthLayout>
       );
     }
 
     return (
-      <RegisterPage
-        onSubmit={onRegister}
-        onSwitch={() => setAuthView("login")}
-        loading={authBusy}
-        error={authError}
-      />
+      <AuthLayout>
+        <RegisterPage
+          onSubmit={onRegister}
+          onSwitch={() => setAuthView("login")}
+          loading={authBusy}
+          error={authError}
+          theme={theme}
+        />
+      </AuthLayout>
     );
   }
 

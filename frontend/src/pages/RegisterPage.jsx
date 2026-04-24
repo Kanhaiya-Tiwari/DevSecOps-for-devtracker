@@ -2,18 +2,16 @@ import { useState } from "react";
 import Input from "../components/Input";
 import Button from "../components/Button";
 
-export default function RegisterPage({ onSubmit, onSwitch, loading, error }) {
+export default function RegisterPage({ onSubmit, onSwitch, loading, error, theme }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   return (
-    <div className="relative min-h-screen grid place-items-center px-4 bg-page text-primary overflow-hidden">
-      <div className="float-soft absolute top-8 -left-10 h-48 w-48 rounded-full bg-fuchsia-500/20 blur-3xl" />
-      <div className="float-soft absolute -bottom-16 right-0 h-56 w-56 rounded-full bg-emerald-400/15 blur-3xl" />
-      <div className="glass-card relative w-full max-w-md rounded-2xl p-6 shadow-2xl">
-        <h1 className="text-2xl font-semibold text-white">Create account</h1>
-        <p className="mt-1 text-sm text-slate-300">Create your daily execution system.</p>
+    <div className={`relative min-h-screen grid place-items-center px-4 transition-colors duration-300 ${theme === 'dark' ? 'bg-[#030712]' : 'bg-slate-50'}`}>
+      <div className="glass-card relative w-full max-w-md rounded-[2rem] p-8 shadow-2xl border border-white/5 overflow-hidden slide-up">
+        <h1 className="text-3xl font-black text-white tracking-tight">Create Identity</h1>
+        <p className="mt-1 text-slate-400 font-medium">Join the elite performance network.</p>
 
         <form
           className="mt-6 space-y-4"
