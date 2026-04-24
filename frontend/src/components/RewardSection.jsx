@@ -1,13 +1,31 @@
-import { Trophy, Target, Flame, Star, Zap, Award, Gift, TrendingUp, CheckCircle2 } from "lucide-react";
+import { Trophy, Target, Flame, Star, Zap, Award, Gift, TrendingUp, CheckCircle2, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { api } from "../services/api";
 
-export default function RewardSection({ user, summary }) {
+export default function RewardSection({ user, summary, token, setUser }) {
   const xpToNextLevel = Math.ceil(Math.sqrt((user?.level || 1) + 1) * 100);
   const currentXP = user?.xp || 0;
   const progress = (currentXP / xpToNextLevel) * 100;
   const streak = summary?.streak || 0;
   const level = user?.level || 1;
   const [claimed, setClaimed] = useState({});
+  const [claiming, setClaiming] = useState({});
+
+  const handleClaim = async (index, amount) => {
+    if (!token) return;
+    setClaiming(prev => ({ ...prev, [index]: true }));
+    try {
+      const res = await api.claimXP(token, amount);
+      if (res.status === "success") {
+        setClaimed(prev => ({ ...prev, [index]: true }));
+        setUser(prev => ({ ...prev, xp: res.xp, level: res.level }));
+      }
+    } catch (error) {
+      alert(error?.message || "Failed to claim XP");
+    } finally {
+      setClaiming(prev => ({ ...prev, [index]: false }));
+    }
+  };
 
   const rewards = [
     { icon: <Zap className="w-5 h-5" />, title: "Daily Login", xp: 10, description: "Log in every day", unlocked: true },
@@ -138,10 +156,11 @@ export default function RewardSection({ user, summary }) {
                   <p className="font-bold">+{reward.xp} XP</p>
                   {reward.unlocked && !claimed[index] ? (
                     <button 
-                      onClick={() => setClaimed(prev => ({ ...prev, [index]: true }))}
-                      className="mt-1 px-3 py-1 rounded-lg bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider hover:bg-emerald-400 transition-colors shadow-lg shadow-emerald-500/20"
+                      onClick={() => handleClaim(index, reward.xp)}
+                      disabled={claiming[index]}
+                      className="mt-1 px-3 py-1 rounded-lg bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider hover:bg-emerald-400 transition-colors shadow-lg shadow-emerald-500/20 disabled:opacity-50"
                     >
-                      Collect
+                      {claiming[index] ? <Loader2 className="w-3 h-3 animate-spin mx-auto" /> : "Collect"}
                     </button>
                   ) : reward.unlocked && claimed[index] ? (
                     <div className="mt-1 flex items-center justify-end gap-1 text-[10px] text-emerald-400 font-bold uppercase tracking-wider animate-bounce-soft">

@@ -74,35 +74,24 @@ export default function BlogPage({ token, user }) {
   };
 
   const handleLike = async (blogId) => {
-    if (!token) {
-      alert("Please log in to like blogs");
-      return;
-    }
+    if (!token) return;
     try {
-      // Toggle like functionality
-      setBlogs(prev => prev.map(blog => 
-        blog.id === blogId 
-          ? { ...blog, likes: (blog.likes || 0) + 1, userLiked: true }
-          : blog
-      ));
-      // You can add API call here if backend supports it
-      // await api.likeBlog(token, blogId);
+      await api.likeBlog(token, blogId);
+      fetchBlogs();
     } catch (error) {
       console.error("Failed to like blog:", error);
     }
   };
 
-  const handleComment = (blogId) => {
+  const handleComment = async (blogId) => {
     const comment = prompt("Share your thoughts on this blog:");
     if (comment && token) {
-      // Add comment functionality
-      setBlogs(prev => prev.map(blog => 
-        blog.id === blogId 
-          ? { ...blog, comments: (blog.comments || 0) + 1 }
-          : blog
-      ));
-      // You can add API call here if backend supports it
-      // await api.addComment(token, blogId, comment);
+      try {
+        await api.addComment(token, blogId, comment);
+        fetchBlogs();
+      } catch (error) {
+        console.error("Failed to add comment:", error);
+      }
     }
   };
 
@@ -265,7 +254,7 @@ export default function BlogPage({ token, user }) {
                     >
                       <Heart className={`w-5 h-5 ${blog.userLiked ? "fill-current" : ""}`} />
                       <span className="text-sm font-medium">
-                        {blog.likes || 0} {blog.likes === 1 ? "Like" : "Likes"}
+                        {blog.likes_count || 0} {blog.likes_count === 1 ? "Like" : "Likes"}
                       </span>
                     </button>
                     <button 
@@ -274,7 +263,7 @@ export default function BlogPage({ token, user }) {
                     >
                       <MessageCircle className="w-5 h-5" />
                       <span className="text-sm font-medium">
-                        {blog.comments || 0} {blog.comments === 1 ? "Comment" : "Comments"}
+                        {blog.comments_count || 0} {blog.comments_count === 1 ? "Comment" : "Comments"}
                       </span>
                     </button>
                     <button 
@@ -285,6 +274,26 @@ export default function BlogPage({ token, user }) {
                       <span className="text-sm font-medium">Share</span>
                     </button>
                   </div>
+
+                  {/* Comments Section */}
+                  {blog.comments && blog.comments.length > 0 && (
+                    <div className="mt-6 space-y-4 pt-6 border-t border-slate-700/30">
+                      {blog.comments.map((comment) => (
+                        <div key={comment.id} className="flex gap-3">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-500 to-violet-500 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+                            {comment.user_name?.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-bold text-white">{comment.user_name}</p>
+                              <span className="text-[10px] text-slate-500">{new Date(comment.created_at).toLocaleDateString()}</span>
+                            </div>
+                            <p className="text-sm text-slate-400 mt-0.5">{comment.content}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </article>
             ))}

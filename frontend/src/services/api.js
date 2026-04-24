@@ -53,6 +53,9 @@ export const api = {
   me(token) {
     return request("/auth/me", { token });
   },
+  claimXP(token, amount) {
+    return request("/auth/claim-xp", { method: "POST", token, body: { amount } });
+  },
   getSkills(token) {
     return request("/skills/", { token });
   },
@@ -114,6 +117,12 @@ export const api = {
   },
   deleteBlog(token, blogId) {
     return request(`/blogs/${blogId}`, { method: "DELETE", token });
+  },
+  likeBlog(token, blogId) {
+    return request(`/blogs/${blogId}/like`, { method: "POST", token });
+  },
+  addComment(token, blogId, content) {
+    return request(`/blogs/${blogId}/comment`, { method: "POST", token, body: { content } });
   },
   // ── Proof of Work ────────────────────────────────────────
   uploadProofOfWork(token, logId, file, notes = null) {

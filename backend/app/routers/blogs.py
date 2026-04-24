@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from pydantic import BaseModel
@@ -6,7 +6,7 @@ from typing import Optional
 from uuid import UUID
 
 from app.dependencies import get_db, get_current_user
-from app.models.blog import Blog
+from app.models.blog import Blog, BlogComment
 from app.models.user import User
 
 router = APIRouter()
@@ -24,12 +24,27 @@ class BlogUpdate(BaseModel):
     cover_image: Optional[str] = None
 
 
+class CommentResponse(BaseModel):
+    id: str
+    user_id: str
+    user_name: str
+    content: str
+    created_at: str
+
+    class Config:
+        from_attributes = True
+
+
 class BlogResponse(BaseModel):
     id: str
     user_id: str
+    user_name: str
     title: str
     content: str
     cover_image: Optional[str]
+    likes_count: int
+    comments_count: int
+    comments: list[CommentResponse] = []
     created_at: str
     updated_at: str
 
@@ -41,9 +56,21 @@ class BlogResponse(BaseModel):
         return cls(
             id=str(obj.id),
             user_id=str(obj.user_id),
+            user_name=obj.user.name if obj.user else "Unknown",
             title=obj.title,
             content=obj.content,
             cover_image=obj.cover_image,
+            likes_count=obj.likes_count or 0,
+            comments_count=len(obj.comments) if obj.comments else 0,
+            comments=[
+                CommentResponse(
+                    id=str(c.id),
+                    user_id=str(c.user_id),
+                    user_name=c.user.name if c.user else "Unknown",
+                    content=c.content,
+                    created_at=c.created_at.isoformat()
+                ) for c in (obj.comments or [])
+            ],
             created_at=obj.created_at.isoformat() if obj.created_at else None,
             updated_at=obj.updated_at.isoformat() if obj.updated_at else None
         )
@@ -54,9 +81,10 @@ async def get_blogs(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    from sqlalchemy.orm import selectinload
     result = await db.execute(
         select(Blog)
-        .where(Blog.user_id == current_user.id)
+        .options(selectinload(Blog.user), selectinload(Blog.comments).selectinload(BlogComment.user))
         .order_by(Blog.created_at.desc())
     )
     blogs = result.scalars().all()
@@ -77,7 +105,13 @@ async def create_blog(
     )
     db.add(new_blog)
     await db.commit()
-    await db.refresh(new_blog)
+    from sqlalchemy.orm import selectinload
+    result = await db.execute(
+        select(Blog)
+        .where(Blog.id == new_blog.id)
+        .options(selectinload(Blog.user))
+    )
+    new_blog = result.scalar_one()
     return BlogResponse.from_orm(new_blog)
 
 
@@ -148,5 +182,41 @@ async def delete_blog(
         )
 
     await db.delete(blog)
+@router.post("/{blog_id}/like")
+async def like_blog(
+    blog_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    result = await db.execute(select(Blog).where(Blog.id == UUID(blog_id)))
+    blog = result.scalar_one_or_none()
+    if not blog:
+        raise HTTPException(status_code=404, detail="Blog not found")
+    
+    blog.likes_count = (blog.likes_count or 0) + 1
+    db.add(blog)
     await db.commit()
-    return {"message": "Blog deleted successfully"}
+    return {"status": "success", "likes": blog.likes_count}
+
+
+@router.post("/{blog_id}/comment")
+async def add_comment(
+    blog_id: str,
+    content: str = Body(..., embed=True),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    result = await db.execute(select(Blog).where(Blog.id == UUID(blog_id)))
+    blog = result.scalar_one_or_none()
+    if not blog:
+        raise HTTPException(status_code=404, detail="Blog not found")
+    
+    comment = BlogComment(
+        blog_id=UUID(blog_id),
+        user_id=current_user.id,
+        content=content
+    )
+    db.add(comment)
+    await db.commit()
+    await db.refresh(comment)
+    return {"status": "success", "comment": content}

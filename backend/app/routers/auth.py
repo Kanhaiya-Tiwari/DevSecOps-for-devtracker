@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Body
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -39,3 +39,18 @@ async def token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
 @router.get("/me", response_model=UserRead)
 async def me(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+@router.post("/claim-xp")
+async def claim_xp(
+    amount: int = Body(..., embed=True),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.services.gamification import level_from_xp
+    current_user.xp = (current_user.xp or 0) + amount
+    current_user.level = level_from_xp(current_user.xp)
+    db.add(current_user)
+    await db.commit()
+    await db.refresh(current_user)
+    return {"status": "success", "xp": current_user.xp, "level": current_user.level}
