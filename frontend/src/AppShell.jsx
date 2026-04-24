@@ -23,14 +23,7 @@ function AppContent() {
   const [authError, setAuthError] = useState("");
   const [showWelcome, setShowWelcome] = useState(true); // Always start with welcome splash
   const [view, setView] = useState("dashboard");
-  const [theme, setTheme] = useState(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("devtrackr_theme");
-      // If nothing is saved, or if it's the first time, always default to dark
-      return saved === "light" ? "light" : "dark";
-    }
-    return "dark";
-  });
+  const theme = "dark"; // Enforce permanent dark mode
   const [addSkillBusy, setAddSkillBusy] = useState(false);
   const [insightBusy, setInsightBusy] = useState(false);
 
@@ -41,13 +34,9 @@ function AppContent() {
   }, []);
 
   useEffect(() => {
-    document.documentElement.classList.toggle("theme-dark", theme === "dark");
-    document.documentElement.classList.toggle("theme-light", theme === "light");
-    localStorage.setItem("devtrackr_theme", theme);
-  }, [theme]);
-
-
-  const toggleTheme = () => setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+    document.documentElement.classList.add("theme-dark");
+    document.documentElement.classList.remove("theme-light");
+  }, []);
 
   const {
     loading,
@@ -229,23 +218,11 @@ function AppContent() {
   );
 
   const AuthLayout = ({ children }) => (
-    <div className="relative min-h-screen bg-page text-primary transition-colors duration-300 overflow-hidden">
-      {/* Theme Toggle for Auth Pages */}
-      <div className="absolute top-6 right-6 z-50">
-        <button 
-          onClick={toggleTheme} 
-          className="w-10 h-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-lg hover:bg-white/10 transition-all"
-        >
-          {theme === "dark" ? "☀️" : "🌙"}
-        </button>
-      </div>
-
-      {theme === "dark" && (
-        <>
-          <div className="float-soft absolute -top-20 left-0 h-96 w-96 rounded-full bg-sky-500/8 blur-3xl" />
-          <div className="float-soft absolute top-1/2 right-0 h-80 w-80 rounded-full bg-pink-500/6 blur-3xl" />
-        </>
-      )}
+    <div className="relative min-h-screen bg-page text-primary overflow-hidden">
+      <>
+        <div className="float-soft absolute -top-20 left-0 h-96 w-96 rounded-full bg-sky-500/8 blur-3xl" />
+        <div className="float-soft absolute top-1/2 right-0 h-80 w-80 rounded-full bg-pink-500/6 blur-3xl" />
+      </>
       {children}
       {showWelcome && WelcomeOverlay}
     </div>

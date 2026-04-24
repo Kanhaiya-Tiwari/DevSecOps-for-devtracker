@@ -44,11 +44,6 @@ export default function Navbar({ user, view, setView, onLogout, theme, onToggleT
         <div className="lg:hidden flex-1" />
 
         <div className="flex items-center gap-3 shrink-0">
-          {/* Theme Toggle */}
-          <button onClick={onToggleTheme} className="hidden sm:flex w-10 h-10 rounded-xl border border-white/10 bg-white/5 items-center justify-center text-lg hover:bg-white/10 hover:border-white/20 transition-all duration-300">
-            {theme === "dark" ? "☀️" : "🌙"}
-          </button>
-
           {user && (
             <div className="flex items-center gap-3">
               <NotificationCenter />
