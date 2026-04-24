@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: kanhaiyatiwari/devtracker-backend:95dd69ece33c3efd824aa265796fa1499f96a8b0
+        image: kanhaiyatiwari/devtracker-backend:61dc4ccd8c7693d405519faca5e8e77a6a2bac9c
         imagePullPolicy: Never
         ports:
         - containerPort: 8000
