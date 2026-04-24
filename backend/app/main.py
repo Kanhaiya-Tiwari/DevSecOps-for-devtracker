@@ -25,6 +25,7 @@ async def lifespan(app: FastAPI):
         await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT TRUE"))
         await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW()"))
         await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW()"))
+        await conn.execute(text("ALTER TABLE blogs ADD COLUMN IF NOT EXISTS likes_count INTEGER DEFAULT 0"))
     logger.info("DevTrackr backend started")
     yield
     await engine.dispose()

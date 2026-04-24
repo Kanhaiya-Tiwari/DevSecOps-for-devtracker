@@ -17,11 +17,11 @@ import { useDevtrackrData } from "./hooks/useDevtrackrData";
 import { NotificationProvider } from "./contexts/NotificationContext";
 
 function AppContent() {
-  const { token, user, loading: authLoading, login, register, logout } = useAuth();
+  const { token, user, loading: authLoading, login, register, logout, setUser } = useAuth();
   const [authView, setAuthView] = useState("login");
   const [authBusy, setAuthBusy] = useState(false);
   const [authError, setAuthError] = useState("");
-  const [showWelcome, setShowWelcome] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true); // Always start with welcome splash
   const [view, setView] = useState("dashboard");
   const [theme, setTheme] = useState(() => {
     if (typeof window !== "undefined") {
@@ -33,20 +33,17 @@ function AppContent() {
   const [insightBusy, setInsightBusy] = useState(false);
 
   useEffect(() => {
+    // Hide initial splash after animation
+    const timer = setTimeout(() => setShowWelcome(false), 4500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
     document.documentElement.classList.toggle("theme-dark", theme === "dark");
     document.documentElement.classList.toggle("theme-light", theme === "light");
     localStorage.setItem("devtrackr_theme", theme);
   }, [theme]);
 
-  // Handle welcome animation
-  useEffect(() => {
-    if (user && !sessionStorage.getItem("welcome_shown")) {
-      setShowWelcome(true);
-      sessionStorage.setItem("welcome_shown", "true");
-      const timer = setTimeout(() => setShowWelcome(false), 4500);
-      return () => clearTimeout(timer);
-    }
-  }, [user]);
 
   const toggleTheme = () => setTheme((prev) => (prev === "dark" ? "light" : "dark"));
 
@@ -195,8 +192,51 @@ function AppContent() {
     token,
   ]);
 
+  // Define the Welcome Overlay Component/logic to be used in both states
+  const WelcomeOverlay = (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#030712]/90 backdrop-blur-2xl animate-fade-in">
+      <div className="text-center space-y-6 slide-up">
+        <div className="relative mx-auto w-32 h-32 animate-bounce-soft">
+          <div className="absolute inset-0 bg-sky-500 blur-3xl opacity-20 animate-pulse" />
+          <div className="relative w-32 h-32 rounded-[2rem] bg-gradient-to-br from-sky-400 via-blue-600 to-violet-600 flex items-center justify-center shadow-2xl overflow-hidden group">
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
+            <span className="text-6xl font-black text-white group-hover:scale-110 transition-transform duration-500">S</span>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight">
+            Welcome to <span className="gradient-text">DevTracker</span>
+          </h1>
+          <p className="text-slate-200 text-lg md:text-xl font-medium max-w-2xl mx-auto px-4">
+            Track your progress, share your knowledge, and explore blogs from the community.
+          </p>
+          <p className="text-sky-400 text-base font-semibold mt-2">
+            {user ? `Hello, ${user.name}!` : "Initializing your workspace..."}
+          </p>
+        </div>
+        <div className="flex justify-center gap-4 pt-4">
+          <div className="px-4 py-2 rounded-full border border-white/10 bg-white/5 text-xs font-bold text-sky-400 uppercase tracking-widest animate-pulse">
+            Level {user?.level || 1}
+          </div>
+          <div className="px-4 py-2 rounded-full border border-white/10 bg-white/5 text-xs font-bold text-violet-400 uppercase tracking-widest animate-pulse">
+            Streak {user?.streak || 0}d
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   if (authLoading) {
     return <div className="min-h-screen grid place-items-center text-slate-300">Loading...</div>;
+  }
+
+  // Show welcome splash always on fresh load before login
+  if (showWelcome && !user) {
+    return (
+      <div className="relative min-h-screen bg-[#030712] overflow-hidden">
+        {WelcomeOverlay}
+      </div>
+    );
   }
 
   if (!user) {
@@ -242,29 +282,7 @@ function AppContent() {
       <BottomNav view={view} setView={setView} />
 
       {/* Welcome Overlay */}
-      {showWelcome && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#030712]/90 backdrop-blur-2xl animate-fade-in">
-          <div className="text-center space-y-6 slide-up">
-            <div className="relative mx-auto w-32 h-32 animate-bounce-soft">
-              <div className="absolute inset-0 bg-sky-500 blur-3xl opacity-20 animate-pulse" />
-              <div className="relative w-32 h-32 rounded-[2rem] bg-gradient-to-br from-sky-400 via-blue-600 to-violet-600 flex items-center justify-center shadow-2xl overflow-hidden group">
-                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
-                <span className="text-6xl font-black text-white group-hover:scale-110 transition-transform duration-500">S</span>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight">
-                Welcome to <span className="gradient-text">Skill Enhance</span>
-              </h1>
-              <p className="text-slate-400 text-lg md:text-xl font-medium">Hello, {user?.name}! Your journey to greatness continues.</p>
-            </div>
-            <div className="flex justify-center gap-4 pt-4">
-              <div className="px-4 py-2 rounded-full border border-white/10 bg-white/5 text-xs font-bold text-sky-400 uppercase tracking-widest animate-pulse">Level {user?.level || 1}</div>
-              <div className="px-4 py-2 rounded-full border border-white/10 bg-white/5 text-xs font-bold text-violet-400 uppercase tracking-widest animate-pulse">Streak {user?.streak || 0}d</div>
-            </div>
-          </div>
-        </div>
-      )}
+      {showWelcome && WelcomeOverlay}
     </div>
   );
 }

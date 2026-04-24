@@ -109,7 +109,10 @@ async def create_blog(
     result = await db.execute(
         select(Blog)
         .where(Blog.id == new_blog.id)
-        .options(selectinload(Blog.user))
+        .options(
+            selectinload(Blog.user),
+            selectinload(Blog.comments).selectinload(BlogComment.user)
+        )
     )
     new_blog = result.scalar_one()
     return BlogResponse.from_orm(new_blog)
@@ -188,15 +191,36 @@ async def like_blog(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    result = await db.execute(select(Blog).where(Blog.id == UUID(blog_id)))
+    from app.models.blog import BlogLike
+    blog_uuid = UUID(blog_id)
+    
+    # Check if user already liked
+    stmt = select(BlogLike).where(BlogLike.blog_id == blog_uuid, BlogLike.user_id == current_user.id)
+    result = await db.execute(stmt)
+    existing_like = result.scalar_one_or_none()
+    
+    # Fetch blog
+    stmt = select(Blog).where(Blog.id == blog_uuid)
+    result = await db.execute(stmt)
     blog = result.scalar_one_or_none()
     if not blog:
         raise HTTPException(status_code=404, detail="Blog not found")
+
+    if existing_like:
+        # Unlike
+        await db.delete(existing_like)
+        blog.likes_count = max(0, (blog.likes_count or 0) - 1)
+        status_msg = "unliked"
+    else:
+        # Like
+        new_like = BlogLike(blog_id=blog_uuid, user_id=current_user.id)
+        db.add(new_like)
+        blog.likes_count = (blog.likes_count or 0) + 1
+        status_msg = "liked"
     
-    blog.likes_count = (blog.likes_count or 0) + 1
     db.add(blog)
     await db.commit()
-    return {"status": "success", "likes": blog.likes_count}
+    return {"status": "success", "action": status_msg, "likes": blog.likes_count}
 
 
 @router.post("/{blog_id}/comment")

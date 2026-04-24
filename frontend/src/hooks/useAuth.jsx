@@ -10,21 +10,8 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem(TOKEN_KEY);
-    if (!saved) {
-      setLoading(false);
-      return;
-    }
-
-    api.me(saved)
-      .then((me) => {
-        setToken(saved);
-        setUser(me);
-      })
-      .catch(() => {
-        localStorage.removeItem(TOKEN_KEY);
-      })
-      .finally(() => setLoading(false));
+    // Session persistence disabled as per user request to force login on refresh
+    setLoading(false);
   }, []);
 
   async function login(email, password) {

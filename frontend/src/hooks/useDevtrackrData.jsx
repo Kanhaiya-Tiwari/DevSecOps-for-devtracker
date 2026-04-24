@@ -41,7 +41,7 @@ export function useDevtrackrData(token) {
     const totalHours = allLogs.reduce((sum, l) => sum + Number(l.hours || 0), 0);
     const streak = streakFromLogs(allLogs);
     const consistency = consistencyScore(allLogs);
-    const progress = selectedSkill ? skillProgress(selectedSkill, selectedLogs) : null;
+    const progress = selectedSkill ? skillProgress(selectedSkill, selectedLogs, {}) : null;
     return { totalHours, streak, consistency, progress };
   }, [allLogs, selectedSkill, selectedLogs]);
 

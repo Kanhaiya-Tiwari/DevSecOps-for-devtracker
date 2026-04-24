@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
   color-scheme: light;
@@ -20,7 +21,7 @@ html.theme-dark {
   --bg-page: #030712;
   --bg-surface: rgba(5, 10, 28, 0.88);
   --bg-surface-strong: rgba(15, 23, 42, 0.78);
-  --text-primary: #e2e8f0;
+  --text-primary: #f1f5f9;
   --text-muted: #94a3b8;
   --border-color: rgba(255, 255, 255, 0.12);
   --card-bg: rgba(5, 10, 28, 0.88);
@@ -43,8 +44,12 @@ body {
   min-height: 100vh;
   background: var(--bg-page);
   color: var(--text-primary);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-weight: 500; /* Bold by default */
+  line-height: 1.6;
+  letter-spacing: -0.01em;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
 }
@@ -131,7 +136,7 @@ body {
   from { transform: translateX(-12px); opacity: 0; }
   to   { transform: translateX(0); opacity: 1; }
 }
-@keyframes fadeIn {
+@keyframes fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
@@ -303,3 +308,74 @@ body {
   background-clip: text;
   color: transparent;
 }
+
+/* Realistic Tsunami Wave Animations */
+.ocean {
+  height: 40%; /* Taller ocean */
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  background: transparent;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wave {
+  background: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/85486/wave.svg) repeat-x;
+  position: absolute;
+  top: -150px;
+  width: 6400px;
+  height: 300px; /* Much taller */
+  animation: wave 4s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite; /* Faster movement */
+  transform: translate3d(0, 0, 0);
+  opacity: 0.15;
+}
+
+.wave:nth-of-type(2) {
+  top: -120px;
+  animation: wave 6s cubic-bezier(0.36, 0.45, 0.63, 0.53) -0.125s infinite, tsunami 12s ease-in-out infinite;
+  opacity: 0.3;
+}
+
+.wave:nth-of-type(3) {
+  top: -180px;
+  animation: wave 8s cubic-bezier(0.36, 0.45, 0.63, 0.53) -0.5s infinite, tsunami 15s ease-in-out infinite;
+  opacity: 0.1;
+  filter: blur(2px);
+}
+
+@keyframes wave {
+  0% { margin-left: 0; }
+  100% { margin-left: -1600px; }
+}
+
+@keyframes tsunami {
+  0%, 100% { transform: translate3d(0, 50px, 0) scaleY(1); }
+  50% { transform: translate3d(0, -150px, 0) scaleY(1.8); } /* Massive surge */
+}
+
+.bubbles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.bubble {
+  position: absolute;
+  bottom: -50px;
+  background-color: rgba(186, 230, 253, 0.3); /* Lighter blue/white for spray */
+  border-radius: 50%;
+  animation: spray 8s ease-in infinite;
+  filter: blur(1px);
+}
+
+@keyframes spray {
+  0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 0; }
+  10% { opacity: 0.6; }
+  100% { transform: translateY(-110vh) rotate(360deg) scale(0.5); opacity: 0; }
+}
+

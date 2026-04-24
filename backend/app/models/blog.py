@@ -20,6 +20,7 @@ class Blog(Base):
 
     user = relationship("User", back_populates="blogs")
     comments = relationship("BlogComment", back_populates="blog", cascade="all,delete")
+    likes = relationship("BlogLike", back_populates="blog", cascade="all,delete")
 
 
 class BlogComment(Base):
@@ -32,4 +33,16 @@ class BlogComment(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     blog = relationship("Blog", back_populates="comments")
+    user = relationship("User")
+
+
+class BlogLike(Base):
+    __tablename__ = "blog_likes"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    blog_id = Column(UUID(as_uuid=True), ForeignKey("blogs.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    blog = relationship("Blog", back_populates="likes")
     user = relationship("User")

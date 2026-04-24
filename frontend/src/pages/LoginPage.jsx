@@ -10,10 +10,33 @@ export default function LoginPage({ onSubmit, onSwitch, loading, error }) {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center px-4 bg-[#030712] text-primary overflow-hidden">
+      {/* Ocean Animation Background */}
+      <div className="ocean">
+        <div className="wave"></div>
+        <div className="wave"></div>
+        <div className="wave"></div>
+      </div>
+
+      {/* Floating Bubbles */}
+      <div className="bubbles">
+        {[...Array(15)].map((_, i) => (
+          <div 
+            key={i} 
+            className="bubble"
+            style={{
+              left: `${Math.random() * 100}%`,
+              width: `${Math.random() * 30 + 10}px`,
+              height: `${Math.random() * 30 + 10}px`,
+              animationDelay: `${Math.random() * 10}s`,
+              animationDuration: `${Math.random() * 5 + 5}s`
+            }}
+          />
+        ))}
+      </div>
+
       {/* Background Orbs */}
-      <div className="absolute top-[-10%] left-[-10%] h-[40%] w-[40%] rounded-full bg-violet-600/10 blur-[120px] orb-move" />
+      <div className="absolute top-[-10%] left-[-10%] h-[40%] w-[40%] rounded-full bg-blue-600/10 blur-[120px] orb-move" />
       <div className="absolute bottom-[-10%] right-[-10%] h-[40%] w-[40%] rounded-full bg-sky-500/10 blur-[120px] orb-move" style={{ animationDelay: '-4s' }} />
-      <div className="absolute top-[30%] left-[20%] h-[30%] w-[30%] rounded-full bg-pink-500/5 blur-[100px] animate-pulse" />
 
       <div className="glass-card relative w-full max-w-lg rounded-[2rem] p-8 shadow-2xl border border-white/5 overflow-hidden slide-up">
         {/* Subtle Gradient Line at top */}
