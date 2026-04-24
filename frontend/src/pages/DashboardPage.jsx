@@ -135,15 +135,13 @@ export default function DashboardPage({ skills, logsBySkill, selectedSkillId, se
     if (!token) return;
     api.getDailyTip(token, { skill_name: null, hours_completed: summary?.totalHours || 0, streak: summary?.streak || 0 })
       .then((r) => setDailyTip(r.tip))
-      .catch(() => {});
+      .catch(() => { });
   }, [token]);
 
   // Load proof of work for all logs
   useEffect(() => {
     if (!token || !logsBySkill) return;
-    // Only load proof for visible or limited number of logs on mobile/initial load
-    const all = Object.values(logsBySkill).flat().slice(0, 20);
-    all.forEach(log => {
+    Object.values(logsBySkill).flat().forEach(log => {
       loadProofOfWorkForLog(log.id);
     });
   }, [logsBySkill, token]);
@@ -227,11 +225,10 @@ export default function DashboardPage({ skills, logsBySkill, selectedSkillId, se
                   setSelectedSkillId(s.id);
                   setView("skill");
                 }}
-                className={`group relative rounded-2xl border p-4 transition-all duration-300 text-left overflow-hidden ${
-                  selectedSkillId === s.id
+                className={`group relative rounded-2xl border p-4 transition-all duration-300 text-left overflow-hidden ${selectedSkillId === s.id
                     ? "border-sky-500/50 bg-sky-500/10 ring-1 ring-sky-500/20"
                     : "border-white/8 bg-white/4 hover:border-white/20 hover:bg-white/8"
-                }`}
+                  }`}
               >
                 <div className="flex flex-col h-full justify-between gap-3">
                   <div className="flex items-start justify-between">
@@ -244,7 +241,7 @@ export default function DashboardPage({ skills, logsBySkill, selectedSkillId, se
                       {p.pct}% complete
                     </div>
                     <div className="mt-1 h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                      <div 
+                      <div
                         className={`h-full rounded-full transition-all duration-500 ${p.pct >= 70 ? 'bg-emerald-500' : p.pct >= 35 ? 'bg-amber-500' : 'bg-rose-500'}`}
                         style={{ width: `${p.pct}%` }}
                       />

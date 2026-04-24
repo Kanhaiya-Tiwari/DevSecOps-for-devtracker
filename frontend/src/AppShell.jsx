@@ -183,69 +183,71 @@ function AppContent() {
     token,
   ]);
 
-  // Define the Welcome Overlay Component/logic to be used in both states
-  const WelcomeOverlay = (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#030712]/90 backdrop-blur-2xl animate-fade-in">
-      <div className="text-center space-y-6 slide-up">
-        <div className="relative mx-auto w-32 h-32 animate-bounce-soft">
-          <div className="absolute inset-0 bg-sky-500 blur-3xl opacity-20 animate-pulse" />
-          <div className="relative w-32 h-32 rounded-[2rem] bg-gradient-to-br from-sky-400 via-blue-600 to-violet-600 flex items-center justify-center shadow-2xl overflow-hidden group">
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
-            <span className="text-6xl font-black text-white group-hover:scale-110 transition-transform duration-500">S</span>
-          </div>
+// Move WelcomeOverlay and AuthLayout outside to ensure stable component identity
+const WelcomeOverlayContent = ({ user }) => (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#030712]/90 backdrop-blur-2xl animate-fade-in">
+    <div className="text-center space-y-6 slide-up">
+      <div className="relative mx-auto w-32 h-32 animate-bounce-soft">
+        <div className="absolute inset-0 bg-sky-500 blur-3xl opacity-20 animate-pulse" />
+        <div className="relative w-32 h-32 rounded-[2rem] bg-gradient-to-br from-sky-400 via-blue-600 to-violet-600 flex items-center justify-center shadow-2xl overflow-hidden group">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
+          <span className="text-6xl font-black text-white group-hover:scale-110 transition-transform duration-500">S</span>
         </div>
-        <div className="space-y-2">
-          <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight">
-            Welcome to <span className="gradient-text">DevTracker</span>
-          </h1>
-          <p className="text-slate-200 text-lg md:text-xl font-medium max-w-2xl mx-auto px-4">
-            Track your progress, share your knowledge, and explore blogs from the community.
-          </p>
-          <p className="text-sky-400 text-base font-semibold mt-2">
-            {user ? `Hello, ${user.name}!` : "Initializing your workspace..."}
-          </p>
+      </div>
+      <div className="space-y-2">
+        <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight">
+          Welcome to <span className="gradient-text">DevTracker</span>
+        </h1>
+        <p className="text-slate-200 text-lg md:text-xl font-medium max-w-2xl mx-auto px-4">
+          Track your progress, share your knowledge, and explore blogs from the community.
+        </p>
+        <p className="text-sky-400 text-base font-semibold mt-2">
+          {user ? `Hello, ${user.name}!` : "Initializing your workspace..."}
+        </p>
+      </div>
+      <div className="flex justify-center gap-4 pt-4">
+        <div className="px-4 py-2 rounded-full border border-white/10 bg-white/5 text-xs font-bold text-sky-400 uppercase tracking-widest animate-pulse">
+          Level {user?.level || 1}
         </div>
-        <div className="flex justify-center gap-4 pt-4">
-          <div className="px-4 py-2 rounded-full border border-white/10 bg-white/5 text-xs font-bold text-sky-400 uppercase tracking-widest animate-pulse">
-            Level {user?.level || 1}
-          </div>
-          <div className="px-4 py-2 rounded-full border border-white/10 bg-white/5 text-xs font-bold text-violet-400 uppercase tracking-widest animate-pulse">
-            Streak {user?.streak || 0}d
-          </div>
+        <div className="px-4 py-2 rounded-full border border-white/10 bg-white/5 text-xs font-bold text-violet-400 uppercase tracking-widest animate-pulse">
+          Streak {user?.streak || 0}d
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 
-  const AuthLayout = ({ children }) => (
-    <div className="relative min-h-screen bg-page text-primary overflow-hidden">
-      <>
-        <div className="float-soft absolute -top-20 left-0 h-96 w-96 rounded-full bg-sky-500/8 blur-3xl" />
-        <div className="float-soft absolute top-1/2 right-0 h-80 w-80 rounded-full bg-pink-500/6 blur-3xl" />
-      </>
-      {children}
-      {showWelcome && WelcomeOverlay}
-    </div>
-  );
+const AuthLayout = ({ children, showWelcome, user }) => (
+  <div className="relative min-h-screen bg-page text-primary overflow-hidden">
+    <div className="float-soft absolute -top-20 left-0 h-96 w-96 rounded-full bg-sky-500/8 blur-3xl" />
+    <div className="float-soft absolute top-1/2 right-0 h-80 w-80 rounded-full bg-pink-500/6 blur-3xl" />
+    {children}
+    {showWelcome && <WelcomeOverlayContent user={user} />}
+  </div>
+);
 
   if (authLoading) {
-    return <div className="min-h-screen grid place-items-center text-slate-300 bg-[#030712]">Loading...</div>;
+    return <div className="min-h-screen grid place-items-center text-slate-300 bg-[#030712]">Loading session...</div>;
   }
 
   // Show welcome splash always on fresh load before login
   if (showWelcome && !user) {
-    return <AuthLayout>{WelcomeOverlay}</AuthLayout>;
+    return (
+      <AuthLayout showWelcome={showWelcome} user={user}>
+        <div className="min-h-screen bg-[#030712]" />
+      </AuthLayout>
+    );
   }
 
   if (!user) {
     if (authView === "login") {
       return (
-        <AuthLayout>
+        <AuthLayout showWelcome={showWelcome} user={user}>
           <LoginPage
             onSubmit={onLogin}
             onSwitch={() => setAuthView("register")}
             loading={authBusy}
-            error={authError}
+            error={String(authError || "")}
             theme={theme}
           />
         </AuthLayout>
@@ -253,12 +255,12 @@ function AppContent() {
     }
 
     return (
-      <AuthLayout>
+      <AuthLayout showWelcome={showWelcome} user={user}>
         <RegisterPage
           onSubmit={onRegister}
           onSwitch={() => setAuthView("login")}
           loading={authBusy}
-          error={authError}
+          error={String(authError || "")}
           theme={theme}
         />
       </AuthLayout>
@@ -274,7 +276,7 @@ function AppContent() {
           <div className="float-soft absolute -bottom-20 left-1/3 h-72 w-72 rounded-full bg-violet-500/6 blur-3xl" />
         </>
       )}
-      <Navbar user={user} view={view} setView={setView} onLogout={logout} theme={theme} onToggleTheme={toggleTheme} />
+      <Navbar user={user} view={view} setView={setView} onLogout={logout} theme={theme} />
       <div className="relative mx-auto flex max-w-7xl gap-4 px-4 py-4 mb-20 md:mb-0">
         <Sidebar view={view} setView={setView} user={user} />
         <main className="min-w-0 flex-1 space-y-4">
@@ -284,9 +286,8 @@ function AppContent() {
         </main>
       </div>
       <BottomNav view={view} setView={setView} />
-
       {/* Welcome Overlay */}
-      {showWelcome && WelcomeOverlay}
+      {showWelcome && <WelcomeOverlayContent user={user} />}
     </div>
   );
 }

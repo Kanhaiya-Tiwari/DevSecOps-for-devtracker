@@ -1,6 +1,6 @@
 import NotificationCenter from "./NotificationCenter";
 
-export default function Navbar({ user, view, setView, onLogout, theme, onToggleTheme }) {
+export default function Navbar({ user, view, setView, onLogout, theme }) {
   const tabs = [
     { id: "dashboard",   label: "Dashboard",   emoji: "🏠" },
     { id: "skill",       label: "Skills",       emoji: "🎯" },
