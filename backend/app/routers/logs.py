@@ -23,7 +23,7 @@ router = APIRouter()
 
 @router.post("/", response_model=LogRead, status_code=status.HTTP_201_CREATED)
 async def add_log(entry: LogCreate, current_user = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
-    now = datetime.utcnow()
+    log_time = entry.log_date or datetime.utcnow()
 
     # Calculate streak
     new_streak = calculate_new_streak(current_user.last_log_date, current_user.streak)
@@ -39,8 +39,8 @@ async def add_log(entry: LogCreate, current_user = Depends(get_current_user), db
         quality=entry.quality,
         notes=entry.notes,
         xp_earned=xp,
-        log_date=now,
-        hour_of_day=now.hour,
+        log_date=log_time,
+        hour_of_day=log_time.hour,
         proof_of_work_required=True,  # Mark that proof of work is required
     )
     db.add(log)
@@ -50,7 +50,9 @@ async def add_log(entry: LogCreate, current_user = Depends(get_current_user), db
     current_user.level = level_from_xp(current_user.xp)
     current_user.streak = new_streak
     current_user.longest_streak = max(current_user.longest_streak or 0, new_streak)
-    current_user.last_log_date = now
+    # Only update last_log_date if the new log is newer than the current one
+    if not current_user.last_log_date or log_time > current_user.last_log_date:
+        current_user.last_log_date = log_time
 
     # Update skill completed_hours
     skill = await get_skill(db, str(entry.skill_id))

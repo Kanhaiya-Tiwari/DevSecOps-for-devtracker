@@ -1,4 +1,5 @@
-import { Trophy, Target, Flame, Star, Zap, Award, Gift, TrendingUp } from "lucide-react";
+import { Trophy, Target, Flame, Star, Zap, Award, Gift, TrendingUp, CheckCircle2 } from "lucide-react";
+import { useState } from "react";
 
 export default function RewardSection({ user, summary }) {
   const xpToNextLevel = Math.ceil(Math.sqrt((user?.level || 1) + 1) * 100);
@@ -6,6 +7,7 @@ export default function RewardSection({ user, summary }) {
   const progress = (currentXP / xpToNextLevel) * 100;
   const streak = summary?.streak || 0;
   const level = user?.level || 1;
+  const [claimed, setClaimed] = useState({});
 
   const rewards = [
     { icon: <Zap className="w-5 h-5" />, title: "Daily Login", xp: 10, description: "Log in every day", unlocked: true },
@@ -134,6 +136,20 @@ export default function RewardSection({ user, summary }) {
                 </div>
                 <div className={`text-right ${reward.unlocked ? "text-emerald-400" : "text-slate-600"}`}>
                   <p className="font-bold">+{reward.xp} XP</p>
+                  {reward.unlocked && !claimed[index] ? (
+                    <button 
+                      onClick={() => setClaimed(prev => ({ ...prev, [index]: true }))}
+                      className="mt-1 px-3 py-1 rounded-lg bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider hover:bg-emerald-400 transition-colors shadow-lg shadow-emerald-500/20"
+                    >
+                      Collect
+                    </button>
+                  ) : reward.unlocked && claimed[index] ? (
+                    <div className="mt-1 flex items-center justify-end gap-1 text-[10px] text-emerald-400 font-bold uppercase tracking-wider animate-bounce-soft">
+                      <CheckCircle2 className="w-3 h-3" /> Collected
+                    </div>
+                  ) : (
+                    <p className="text-[10px] font-bold uppercase tracking-wider opacity-50">Locked</p>
+                  )}
                 </div>
               </div>
             ))}

@@ -22,6 +22,7 @@ export default function SkillDetailPage({ skill, logs, insight, onLog, onRefresh
   const [hoursInput, setHoursInput] = useState("1");
   const [quality, setQuality] = useState("medium");
   const [notes, setNotes] = useState("");
+  const [logDate, setLogDate] = useState(new Date().toISOString().slice(0, 16));
   const [showHistory, setShowHistory] = useState(false);
   const [showProofModal, setShowProofModal] = useState(false);
   const [selectedLogForProof, setSelectedLogForProof] = useState(null);
@@ -132,7 +133,7 @@ export default function SkillDetailPage({ skill, logs, insight, onLog, onRefresh
       }
       
       // Submit the session first
-      const result = await onLog(skill.id, Number(hoursInput), quality, notes);
+      const result = await onLog(skill.id, Number(hoursInput), quality, notes, logDate);
       console.log("Session submitted result:", result);
       
       setHoursInput("1");
@@ -305,8 +306,17 @@ export default function SkillDetailPage({ skill, logs, insight, onLog, onRefresh
             onSubmit={handleSessionSubmit}
           >
             <div className="flex gap-3 flex-wrap">
+              <div className="flex-1 min-w-[200px]">
+                <Input 
+                  label="Learning Date & Time" 
+                  type="datetime-local" 
+                  value={logDate} 
+                  onChange={(e) => setLogDate(e.target.value)} 
+                />
+              </div>
               <Input label="Hours" type="number" step="0.25" min="0.25" max="12" value={hoursInput} onChange={(e) => setHoursInput(e.target.value)} className="w-28" />
-              <div className="flex-1">
+            </div>
+            <div className="w-full">
                 <label className="block">
                   <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400">Session Quality</span>
                   <div className="flex gap-2">
@@ -319,7 +329,6 @@ export default function SkillDetailPage({ skill, logs, insight, onLog, onRefresh
                   </div>
                 </label>
               </div>
-            </div>
             <Input label="Notes (optional)" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="What did you work on?" />
             
             <Button 

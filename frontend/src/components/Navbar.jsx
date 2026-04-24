@@ -18,7 +18,7 @@ export default function Navbar({ user, view, setView, onLogout, theme, onToggleT
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-500 to-blue-700 flex items-center justify-center text-sm font-black text-white shadow-lg shadow-sky-900/40">D</div>
           <span className="font-black text-white text-base tracking-tight">Dev<span className="gradient-text">Trackr</span></span>
         </div>
-        <nav className="flex gap-0.5 overflow-x-auto flex-1">
+        <nav className="hidden md:flex gap-0.5 overflow-x-auto flex-1">
           {tabs.map((t) => (
             <button key={t.id} onClick={() => setView(t.id)}
               className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold transition duration-200 whitespace-nowrap flex items-center gap-1.5 ${view === t.id ? "bg-gradient-to-r from-sky-600 to-blue-600 text-white shadow-md shadow-sky-900/40" : "text-slate-400 hover:text-white hover:bg-white/8"}`}
@@ -28,8 +28,9 @@ export default function Navbar({ user, view, setView, onLogout, theme, onToggleT
             </button>
           ))}
         </nav>
+        <div className="md:hidden flex-1" /> {/* Spacer for mobile */}
         <div className="ml-2 flex items-center gap-2 shrink-0">
-          <button onClick={onToggleTheme} className="rounded-lg border border-slate-300/20 bg-white/10 px-3 py-1.5 text-xs text-slate-900 hover:bg-white/20 transition duration-200 font-medium">
+          <button onClick={onToggleTheme} className="rounded-lg border border-slate-300/20 bg-white/10 px-3 py-1.5 text-xs text-white hover:bg-white/20 transition duration-200 font-medium">
             {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
           </button>
           {user && (

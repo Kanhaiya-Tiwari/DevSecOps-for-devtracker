@@ -10,6 +10,7 @@ class LogCreate(BaseModel):
     hours: float
     quality: str
     notes: Optional[str] = None
+    log_date: Optional[datetime] = None
 
 
 class LogRead(BaseModel):

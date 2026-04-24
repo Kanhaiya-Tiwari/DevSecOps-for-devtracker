@@ -11,6 +11,7 @@ import LeaderboardPage from "./pages/LeaderboardPage";
 import SettingsPage from "./pages/SettingsPage";
 import BlogPage from "./pages/BlogPage";
 import RewardSection from "./components/RewardSection";
+import BottomNav from "./components/BottomNav";
 import { useAuth } from "./hooks/useAuth";
 import { useDevtrackrData } from "./hooks/useDevtrackrData";
 import { NotificationProvider } from "./contexts/NotificationContext";
@@ -23,9 +24,9 @@ function AppContent() {
   const [view, setView] = useState("dashboard");
   const [theme, setTheme] = useState(() => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("devtrackr_theme") || "light";
+      return localStorage.getItem("devtrackr_theme") || "dark";
     }
-    return "light";
+    return "dark";
   });
   const [addSkillBusy, setAddSkillBusy] = useState(false);
   const [insightBusy, setInsightBusy] = useState(false);
@@ -88,12 +89,13 @@ function AppContent() {
     }
   }
 
-  async function onQuickLog(skillId, amount = 1) {
+  async function onQuickLog(skillId, amount = 1, quality = "medium", notes = "Quick log", logDate = null) {
     return await addLog({
       skill_id: skillId,
       hours: Number(amount),
-      quality: "medium",
-      notes: "Quick log",
+      quality: quality,
+      notes: notes,
+      log_date: logDate,
     });
   }
 
@@ -114,6 +116,7 @@ function AppContent() {
           logsBySkill={logsBySkill}
           selectedSkillId={selectedSkillId}
           setSelectedSkillId={setSelectedSkillId}
+          setView={setView}
           summary={summary}
           insight={insight}
           onRefreshInsight={onRefreshInsight}
@@ -217,7 +220,7 @@ function AppContent() {
         </>
       )}
       <Navbar user={user} view={view} setView={setView} onLogout={logout} theme={theme} onToggleTheme={toggleTheme} />
-      <div className="relative mx-auto flex max-w-7xl gap-4 px-4 py-4">
+      <div className="relative mx-auto flex max-w-7xl gap-4 px-4 py-4 mb-20 md:mb-0">
         <Sidebar view={view} setView={setView} user={user} />
         <main className="min-w-0 flex-1 space-y-4">
           {loading ? <div className="rounded-xl border border-slate-200/20 bg-surface-strong p-4 text-primary">Loading workspace...</div> : null}
@@ -225,6 +228,7 @@ function AppContent() {
           {content}
         </main>
       </div>
+      <BottomNav view={view} setView={setView} />
     </div>
   );
 }

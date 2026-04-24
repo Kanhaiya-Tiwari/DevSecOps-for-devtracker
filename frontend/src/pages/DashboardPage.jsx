@@ -109,7 +109,7 @@ function AddSkillModal({ open, onClose, onCreate, loading, token }) {
   );
 }
 
-export default function DashboardPage({ skills, logsBySkill, selectedSkillId, setSelectedSkillId, summary, insight, onRefreshInsight, onAddSkill, addSkillLoading, insightLoading, token }) {
+export default function DashboardPage({ skills, logsBySkill, selectedSkillId, setSelectedSkillId, setView, summary, insight, onRefreshInsight, onAddSkill, addSkillLoading, insightLoading, token }) {
   const [showModal, setShowModal] = useState(false);
   const [tipIdx, setTipIdx] = useState(0);
   const [dailyTip, setDailyTip] = useState(null);
@@ -206,6 +206,52 @@ export default function DashboardPage({ skills, logsBySkill, selectedSkillId, se
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard label="Skills Active" value={`${activeSkills}/${totalSkills}`} tone="purple" icon="🎯" />
           </div>
+        </div>
+      </section>
+
+      {/* Your Skills Navigation */}
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-base font-bold text-white">🎯 Your Skills</h3>
+          <p className="text-xs text-slate-500">Tap to view details</p>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          {skills.map((s) => {
+            const p = skillProgress(s, logsBySkill[s.id] || []);
+            return (
+              <button
+                key={s.id}
+                onClick={() => {
+                  setSelectedSkillId(s.id);
+                  setView("skill");
+                }}
+                className={`group relative rounded-2xl border p-4 transition-all duration-300 text-left overflow-hidden ${
+                  selectedSkillId === s.id
+                    ? "border-sky-500/50 bg-sky-500/10 ring-1 ring-sky-500/20"
+                    : "border-white/8 bg-white/4 hover:border-white/20 hover:bg-white/8"
+                }`}
+              >
+                <div className="flex flex-col h-full justify-between gap-3">
+                  <div className="flex items-start justify-between">
+                    <span className="text-3xl group-hover:scale-110 transition-transform">{s.icon || "⚡"}</span>
+                    {p.pct >= 100 && <span className="text-xs font-bold text-emerald-400">Done</span>}
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-white truncate">{s.name}</p>
+                    <div className="mt-2 text-[10px] uppercase font-bold tracking-wider text-slate-500">
+                      {p.pct}% complete
+                    </div>
+                    <div className="mt-1 h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-500 ${p.pct >= 70 ? 'bg-emerald-500' : p.pct >= 35 ? 'bg-amber-500' : 'bg-rose-500'}`}
+                        style={{ width: `${p.pct}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </section>
 
