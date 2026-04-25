@@ -13,7 +13,6 @@
 
 **DevTrackr** is not just a skill tracker—it is a **Production-Grade DevSecOps showcase**. It combines a high-performance React/FastAPI stack with a self-healing GitOps deployment model, automated security gates, and AI-powered behavior analysis.
 
----
 
 ## 📸 System Showcase
 
