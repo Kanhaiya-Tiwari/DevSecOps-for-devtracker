@@ -37,7 +37,6 @@
 ### ✍️ Community & Insights
 ![Community Insights](./screenshots/community_insights.png)
 *Integrated blog and community platform for sharing learning journeys and progress.*
-
 ---
 
 ## 🏗️ High-Level Architecture
