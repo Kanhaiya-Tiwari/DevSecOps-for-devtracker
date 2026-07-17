@@ -160,7 +160,6 @@ If you need to manually deploy after SSH into EC2:
 cd /home/ubuntu/DevTracker-mega-project/infra/ansible
 ansible-playbook playbook-ec2.yml
 ```
-
 ### Kubernetes Namespace
 
 All resources are deployed in the `devtracker` namespace.
