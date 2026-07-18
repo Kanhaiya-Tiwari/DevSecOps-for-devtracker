@@ -10,7 +10,6 @@
   <img src="https://img.shields.io/badge/Ansible-EE0000?style=for-the-badge&logo=ansible&logoColor=white" />
 </p>
 **DevTrackr** is not just a skill tracker—it is a **Production-Grade DevSecOps showcase**. It combines a high-performance React/FastAPI stack with a self-healing GitOps deployment model, automated security gates, and AI-powered behavior analysis.
-
 ## 📸 System Showcase
 
 ### 📊 Intelligent Dashboard
